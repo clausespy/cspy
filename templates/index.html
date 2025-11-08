@@ -1,128 +1,328 @@
-{\rtf1\ansi\ansicpg1252\cocoartf2822
-\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fnil\fcharset0 HelveticaNeue;}
-{\colortbl;\red255\green255\blue255;}
-{\*\expandedcolortbl;;}
-\paperw11900\paperh16840\margl1440\margr1440\vieww11520\viewh8400\viewkind0
-\deftab560
-\pard\pardeftab560\slleading20\pardirnatural\partightenfactor0
 
-\f0\fs26 \cf0 \
-\
-<!-- index.html - The Frontend User Interface -->\
-\
-<!DOCTYPE html>\
-<html lang="en">\
-<head>\
-    <meta charset="UTF-8">\
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">\
-    <title>AI Contract Analyzer</title>\
-    <style>\
-        body \{ font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: #f4f7f9; margin: 20px; color: #333; \}\
-        .container \{ max-width: 800px; margin: auto; \}\
-        h1, h2 \{ color: #1a202c; \}\
-        textarea, input \{ width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ccc; margin-bottom: 10px; font-size: 1rem; \}\
-        button \{ width: 100%; padding: 15px; border: none; border-radius: 8px; background-color: #007aff; color: white; font-size: 1.2rem; cursor: pointer; \}\
-        button:hover \{ background-color: #0056b3; \}\
-        .card \{ background-color: #fff; border-radius: 12px; padding: 24px; margin-top: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); \}\
-        .hidden \{ display: none; \}\
-        .loader \{ text-align: center; font-size: 1.5rem; padding: 40px; \}\
-        .risk-high \{ border-left: 5px solid #ef4444; \}\
-        .risk-medium \{ border-left: 5px solid #f59e0b; \}\
-    </style>\
-</head>\
-<body>\
-\
-    <div class="container">\
-        <h1>AI Contract Analyzer</h1>\
-        <p>Paste your contract text below, add a specific question, and get an instant analysis.</p>\
-\
-        <textarea id="contractText" rows="10" placeholder="Paste the full text of your contract here..."></textarea>\
-        <input type="text" id="userQuery" placeholder="Optional: What do you want to achieve? (e.g., 'how to terminate')">\
-        <button id="analyzeButton">Analyze My Contract</button>\
-\
-        <div id="loader" class="loader hidden">Analyzing... Please wait.</div>\
-\
-        <div id="results" class="hidden">\
-            <div id="summaryCard" class="card">\
-                <h2>Plain English Summary</h2>\
-                <p id="summaryText"></p>\
-            </div>\
-            <div id="risksCard" class="card">\
-                <h2>Potential Risks & Loopholes</h2>\
-                <div id="risksList"></div>\
-            </div>\
-            <div id="advantagesCard" class="card">\
-                <h2>Your Advantages</h2>\
-                <div id="advantagesList"></div>\
-            </div>\
-        </div>\
-    </div>\
-\
-    <script>\
-        // JavaScript to connect the frontend to the backend\
-        const analyzeButton = document.getElementById('analyzeButton');\
-        const loader = document.getElementById('loader');\
-        const resultsDiv = document.getElementById('results');\
-\
-        // IMPORTANT: Replace this with your actual backend URL after deploying it on Render.\
-        const BACKEND_URL = 'https://YOUR_BACKEND_SERVICE_NAME.onrender.com/analyze';\
-\
-        analyzeButton.addEventListener('click', async () => \{\
-            const contractText = document.getElementById('contractText').value;\
-            const userQuery = document.getElementById('userQuery').value;\
-\
-            if (!contractText) \{\
-                alert('Please paste some contract text to analyze.');\
-                return;\
-            \}\
-\
-            // Show loader and hide old results\
-            loader.classList.remove('hidden');\
-            resultsDiv.classList.add('hidden');\
-\
-            try \{\
-                const response = await fetch(BACKEND_URL, \{\
-                    method: 'POST',\
-                    headers: \{ 'Content-Type': 'application/json' \},\
-                    body: JSON.stringify(\{ contract_text: contractText, user_query: userQuery \})\
-                \});\
-\
-                if (!response.ok) \{\
-                    throw new Error(`HTTP error! status: $\{response.status\}`);\
-                \}\
-\
-                const data = await response.json();\
-\
-                // Populate results\
-                document.getElementById('summaryText').innerText = data.summary;\
-\
-                const risksList = document.getElementById('risksList');\
-                risksList.innerHTML = '';\
-                data.risks.forEach(risk => \{\
-                    const riskDiv = document.createElement('div');\
-                    riskDiv.innerHTML = `<p><strong>$\{risk.title\} ($\{risk.level\} Risk):</strong> $\{risk.explanation\}</p>`;\
-                    risksList.appendChild(riskDiv);\
-                \});\
-\
-                const advantagesList = document.getElementById('advantagesList');\
-                advantagesList.innerHTML = '';\
-                data.advantages.forEach(advantage => \{\
-                    const advantageDiv = document.createElement('div');\
-                    advantageDiv.innerHTML = `<p><strong>Clause $\{advantage.clause\}:</strong> $\{advantage.finding\}</p>`;\
-                    advantagesList.appendChild(advantageDiv);\
-                \});\
-\
-                // Hide loader and show new results\
-                loader.classList.add('hidden');\
-                resultsDiv.classList.remove('hidden');\
-\
-            \} catch (error) \{\
-                loader.classList.add('hidden');\
-                alert('An error occurred. Please check the backend URL and try again. Error: ' + error.message);\
-            \}\
-        \});\
-    </script>\
-\
-</body>\
-</html>\
-}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ClauseSpy - Dynamic UI Mockup</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+
+        :root {
+            --primary-color: #6a5acd; /* SlateBlue */
+            --secondary-color: #00d4ff; /* A bright blue */
+            --background-color: #1c1c2e; /* Dark blue */
+            --card-background: rgba(255, 255, 255, 0.05);
+            --text-color: #ffffff;
+            --text-muted: #a9a9c4;
+            --risk-high: #ff4757;
+            --risk-medium: #ffc107;
+            --risk-low: #2ed573;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 2rem;
+            box-sizing: border-box;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1400px;
+            height: 90vh;
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            background: var(--card-background);
+            border-radius: 24px;
+            box-shadow: 0 10px 50px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+        }
+
+        /* --- Sidebar --- */
+        .sidebar {
+            background-color: rgba(0,0,0,0.1);
+            padding: 2.5rem 1.5rem;
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .logo {
+            font-weight: 700;
+            font-size: 28px;
+            margin-bottom: 3rem;
+            text-align: center;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .upload-area {
+            border: 2px dashed var(--text-muted);
+            border-radius: 16px;
+            padding: 2rem;
+            text-align: center;
+            cursor: pointer;
+            background-color: rgba(255, 255, 255, 0.05);
+            transition: all 0.3s ease;
+        }
+        
+        .upload-area:hover {
+            border-color: var(--primary-color);
+            transform: scale(1.03);
+            background-color: rgba(106, 90, 205, 0.1);
+        }
+
+        .upload-area svg { color: var(--primary-color); margin-bottom: 1rem; }
+        .upload-text { font-weight: 500; color: var(--text-color); }
+        .upload-subtext { font-size: 13px; color: var(--text-muted); margin-top: 0.25rem; }
+
+        .chatbot {
+            margin-top: 2.5rem;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .chatbot h3 {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-color);
+            margin-bottom: 1rem;
+        }
+
+        .chat-history {
+            flex-grow: 1;
+            background: rgba(0,0,0,0.2);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            font-size: 14px;
+            line-height: 1.6;
+            color: var(--text-muted);
+        }
+        
+        .chat-input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            font-size: 14px;
+            box-sizing: border-box;
+            background-color: rgba(0,0,0,0.2);
+            color: var(--text-color);
+        }
+
+        /* --- Main Panel --- */
+        .main-panel {
+            padding: 3rem;
+            overflow-y: auto;
+        }
+
+        .main-panel h1 {
+            font-size: 36px;
+            font-weight: 700;
+            margin: 0 0 0.5rem 0;
+        }
+
+        .main-panel .tagline {
+            font-size: 18px;
+            color: var(--text-muted);
+            margin-bottom: 3rem;
+        }
+
+        /* --- Dashboard Cards --- */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .card {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0));
+            border-radius: 20px;
+            padding: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+            border-color: rgba(106, 90, 205, 0.5);
+        }
+        
+        .card .icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+            font-size: 24px;
+        }
+
+        .card .title {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+        }
+
+        .card .data {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--text-color);
+        }
+        
+        /* Card specifics */
+        .card-summary .icon { background: linear-gradient(45deg, var(--primary-color), #8a7aff); color: white;}
+        .card-risk .icon { background: linear-gradient(45deg, var(--risk-high), #ff7989); color: white; }
+        .card-opportunity .icon { background: linear-gradient(45deg, var(--risk-low), #7bed9f); color: white;}
+
+        /* Risk Analysis Section */
+        .analysis-section {
+            background: var(--card-background);
+            border-radius: 20px;
+            padding: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .analysis-section h2 {
+            font-size: 22px;
+            font-weight: 600;
+            margin: 0 0 1.5rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 1rem;
+        }
+        
+        .risk-item {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 1.5rem;
+        }
+        .risk-item:last-child { margin-bottom: 0; }
+
+        .risk-guage {
+            flex-shrink: 0;
+            margin-right: 1.5rem;
+            width: 50px;
+        }
+        .risk-guage .level {
+            height: 8px;
+            border-radius: 4px;
+            margin-top: 8px;
+        }
+        .risk-guage .label { font-weight: 600; font-size: 14px; }
+        
+        .risk-high .label { color: var(--risk-high); }
+        .risk-high .level { background: var(--risk-high); }
+        .risk-medium .label { color: var(--risk-medium); }
+        .risk-medium .level { background: var(--risk-medium); }
+        .risk-low .label { color: var(--risk-low); }
+        .risk-low .level { background: var(--risk-low); }
+
+        .risk-content .risk-title { font-weight: 600; font-size: 16px; color: var(--text-color); }
+        .risk-content .risk-description { font-size: 14px; color: var(--text-muted); line-height: 1.6; }
+
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <aside class="sidebar">
+            <div class="logo">ClauseSpy</div>
+            
+            <div class="upload-area">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21.2 15c.7-1.2 1-2.5.7-3.9-.6-2.4-2.4-4.2-4.8-4.8-1.4-.3-2.7-.1-3.9.7L12 8 9.8 6c-1.2-.8-2.5-1-3.9-.7-2.4.6-4.2 2.4-4.8 4.8-.3 1.4-.1 2.7.7 3.9L8 16l4 4 4-4 .2-2.8"></path>
+                </svg>
+                <div class="upload-text">Upload Contract</div>
+                <div class="upload-subtext">Drag & Drop PDF</div>
+            </div>
+
+            <div class="chatbot">
+                <h3>Ask AI Assistant</h3>
+                <div class="chat-history">
+                    <p><strong>Bot:</strong> I can clarify any part of this contract. Just ask!</p>
+                </div>
+                <input type="text" class="chat-input" placeholder="e.g., Explain the liability clause">
+            </div>
+        </aside>
+
+        <main class="main-panel">
+            <h1>Analysis Dashboard</h1>
+            <p class="tagline">Your contract, decoded.</p>
+
+            <div class="dashboard-grid">
+                <div class="card card-summary">
+                    <div class="icon">📝</div>
+                    <div class="title">Plain Summary</div>
+                    <div class="data">Ready to Read</div>
+                </div>
+
+                <div class="card card-risk">
+                    <div class="icon">⚠️</div>
+                    <div class="title">Overall Risk</div>
+                    <div class="data">High</div>
+                </div>
+
+                <div class="card card-opportunity">
+                     <div class="icon">💡</div>
+                    <div class="title">Opportunities</div>
+                    <div class="data">2 Found</div>
+                </div>
+            </div>
+
+            <section class="analysis-section">
+                <h2>Risk Breakdown</h2>
+                <div class="risk-list">
+                    <div class="risk-item">
+                        <div class="risk-guage risk-high">
+                            <div class="label">High</div>
+                            <div class="level"></div>
+                        </div>
+                        <div class="risk-content">
+                            <p class="risk-title">Unlimited Liability</p>
+                            <p class="risk-description">The clause on page 4 lacks a liability cap, exposing you to significant financial risk. This should be negotiated immediately.</p>
+                        </div>
+                    </div>
+                    <div class="risk-item">
+                        <div class="risk-guage risk-medium">
+                            <div class="label">Medium</div>
+                             <div class="level"></div>
+                        </div>
+                        <div class="risk-content">
+                            <p class="risk-title">Aggressive Auto-Renewal</p>
+                            <p class="risk-description">The contract renews automatically unless you provide a 90-day notice, which is longer than the industry standard of 30 days.</p>
+                        </div>
+                    </div>
+                     <div class="risk-item">
+                        <div class="risk-guage risk-low">
+                           <div class="label">Low</div>
+                            <div class="level"></div>
+                        </div>
+                        <div class="risk-content">
+                            <p class="risk-title">Standard Force Majeure</p>
+                            <p class="risk-description">The "Act of God" clause is standard and doesn't contain any unusual terms or hidden risks.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+</body>
+</html>
