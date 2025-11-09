@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -87,6 +85,32 @@
         .upload-area svg { color: var(--primary-color); margin-bottom: 1rem; }
         .upload-text { font-weight: 500; color: var(--text-color); }
         .upload-subtext { font-size: 13px; color: var(--text-muted); margin-top: 0.25rem; }
+
+        /* Style for the new Scan button */
+        .scan-btn {
+            width: 100%;
+            padding: 1rem;
+            margin-top: 1rem;
+            border: none;
+            border-radius: 8px;
+            background: var(--primary-color);
+            color: var(--text-color);
+            font-weight: 600;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .scan-btn:hover {
+            opacity: 0.9;
+            transform: scale(1.02);
+        }
+        .scan-btn:disabled {
+            background-color: #5a5a7d; /* Muted purple */
+            color: var(--text-muted);
+            cursor: not-allowed;
+            transform: none;
+        }
+
 
         .chatbot {
             margin-top: 2.5rem;
@@ -240,6 +264,8 @@
     </style>
 </head>
 <body>
+    <!-- This is the hidden file input. We trigger it with JavaScript. -->
+    <input type="file" id="contract-file-input" hidden>
 
     <div class="container">
         <aside class="sidebar">
@@ -250,8 +276,11 @@
                     <path d="M21.2 15c.7-1.2 1-2.5.7-3.9-.6-2.4-2.4-4.2-4.8-4.8-1.4-.3-2.7-.1-3.9.7L12 8 9.8 6c-1.2-.8-2.5-1-3.9-.7-2.4.6-4.2 2.4-4.8 4.8-.3 1.4-.1 2.7.7 3.9L8 16l4 4 4-4 .2-2.8"></path>
                 </svg>
                 <div class="upload-text">Upload Contract</div>
-                <div class="upload-subtext">Drag & Drop PDF</div>
+                <div class="upload-subtext">Click or Drag & Drop PDF</div>
             </div>
+
+            <!-- This is our new Scan button. It starts disabled. -->
+            <button id="scan-button" class="scan-btn" disabled>Scan Contract</button>
 
             <div class="chatbot">
                 <h3>Ask AI Assistant</h3>
@@ -289,6 +318,7 @@
             <section class="analysis-section">
                 <h2>Risk Breakdown</h2>
                 <div class="risk-list">
+                    <!-- Dynamic content will go here -->
                     <div class="risk-item">
                         <div class="risk-guage risk-high">
                             <div class="label">High</div>
@@ -324,5 +354,92 @@
         </main>
     </div>
 
+    <!-- ===== JAVASCRIPT FOR FUNCTIONALITY ===== -->
+    <script>
+        // Get all the elements we need to work with
+        const uploadArea = document.querySelector('.upload-area');
+        const fileInput = document.getElementById('contract-file-input');
+        const scanButton = document.getElementById('scan-button');
+        const uploadText = document.querySelector('.upload-text');
+        
+        let selectedFile = null; // Variable to store the chosen file
+
+        // --- Step 1: Handle File Selection ---
+
+        // When the styled upload area is clicked, it clicks the hidden file input
+        uploadArea.addEventListener('click', () => {
+            fileInput.click();
+        });
+
+        // Also handle dropping a file onto the upload area
+        uploadArea.addEventListener('dragover', (event) => {
+            event.preventDefault(); // Prevents the browser from opening the file
+            uploadArea.style.borderColor = 'var(--primary-color)';
+        });
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.style.borderColor = 'var(--text-muted)';
+        });
+        uploadArea.addEventListener('drop', (event) => {
+            event.preventDefault();
+            uploadArea.style.borderColor = 'var(--text-muted)';
+            
+            // Get the dropped file and trigger the 'change' event
+            const files = event.dataTransfer.files;
+            if (files.length > 0) {
+                fileInput.files = files;
+                const changeEvent = new Event('change', { 'bubbles': true });
+                fileInput.dispatchEvent(changeEvent);
+            }
+        });
+
+        // When a file is chosen (either by clicking or dropping)
+        fileInput.addEventListener('change', (event) => {
+            selectedFile = event.target.files[0];
+            if (selectedFile) {
+                // Update the UI
+                uploadText.textContent = selectedFile.name; // Show the filename
+                scanButton.disabled = false; // Enable the "Scan" button
+                alert('File "' + selectedFile.name + '" is ready. Click "Scan Contract" to proceed.');
+            } else {
+                // Reset if no file is chosen
+                uploadText.textContent = 'Upload Contract';
+                scanButton.disabled = true;
+                selectedFile = null;
+            }
+        });
+
+
+        // --- Step 2: Handle the Scan Button Click ---
+        
+        scanButton.addEventListener('click', () => {
+            if (selectedFile) {
+                const reader = new FileReader();
+
+                // This function runs when the file has been successfully read
+                reader.onload = (event) => {
+                    const fileContent = event.target.result;
+                    
+                    console.log("--- Contract Content ---");
+                    console.log(fileContent);
+                    
+                    alert("Contract has been 'scanned'! The content is now available in the browser's console (press F12 and click 'Console'). This is where you would send the content to the AI.");
+
+                    // Here, you would send 'fileContent' to your AI analysis backend
+                };
+
+                // This function runs if there's an error reading the file
+                reader.onerror = () => {
+                    alert('Error reading the file. Please try again.');
+                    console.error('File could not be read.');
+                };
+
+                // Start reading the file as plain text
+                reader.readAsText(selectedFile);
+            } else {
+                alert('Please select a contract file first.');
+            }
+        });
+
+    </script>
 </body>
 </html>
