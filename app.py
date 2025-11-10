@@ -1,12 +1,11 @@
 import os
 import re
-from flask import Flask, request, jsonify, redirect, url_for, render_template
+from flask import Flask, request, jsonify, render_template
 
 # --- 1. Basic App Setup ---
 app = Flask(__name__)
 
-# Define the path for uploaded files. 
-# We'll create a folder named 'uploads' in the same directory as this script.
+# Define the path for uploaded files.
 UPLOAD_FOLDER = 'uploads'
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
@@ -17,98 +16,122 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 def sanitize_filename(filename):
   """
   Takes a filename and returns a web-safe version of it.
-  - Replaces spaces with underscores.
-  - Removes all characters that are not letters, numbers, dots, underscores, or hyphens.
   """
-  # Replace one or more whitespace characters with a single underscore
   filename = re.sub(r'\s+', '_', filename)
-  # Remove all characters that aren't alphanumeric, a dot, an underscore, or a hyphen
   safe_filename = re.sub(r'[^a-zA-Z0-9._-]', '', filename)
   return safe_filename
 
 
 # --- 3. Frontend Display Route ---
-# This route will just display a simple HTML form to test the upload.
+# This serves your index.html file from the 'templates' folder.
 @app.route('/')
 def index():
-    # This function will look for an 'index.html' file in a 'templates' folder.
-    # For now, we'll return a simple string to keep it self-contained.
-    return '''
-    <!doctype html>
-    <title>ClauseSpy Uploader</title>
-    <h1>Upload a Contract to Analyze</h1>
-    <form method=post action="/upload" enctype=multipart/form-data>
-      <input type=file name=file>
-      <input type=submit value=Upload>
-    </form>
-    '''
+    return render_template('index.html')
 
-# --- 4. File Upload Route ---
+
+# --- 4. File Upload Route (for potential future use, not used by current UI) ---
 @app.route('/upload', methods=['POST'])
 def upload_file():
-    # Check if the post request has the file part
     if 'file' not in request.files:
         return jsonify({"error": "No file part in the request"}), 400
     
     file = request.files['file']
 
-    # If the user does not select a file, the browser submits an
-    # empty file without a filename.
     if file.filename == '':
         return jsonify({"error": "No selected file"}), 400
 
     if file:
-        # Get the original filename from the upload
         original_filename = file.filename
-        
-        # Create a safe, sanitized version of the filename
         safe_filename = sanitize_filename(original_filename)
-        
-        # Create the full path to save the file
         save_path = os.path.join(app.config['UPLOAD_FOLDER'], safe_filename)
-        
-        # Save the file to the 'uploads' folder
         file.save(save_path)
         
-        # For now, return a success message with the new filename.
-        # In the next steps, this is where you would trigger the analysis.
         return jsonify({
             "message": "File uploaded successfully.",
-            "original_filename": original_filename,
-            "saved_as_filename": safe_filename,
-            "file_size_bytes": os.path.getsize(save_path)
+            "saved_as_filename": safe_filename
         }), 200
 
-    return jsonify({"error": "An unknown error occurred during file upload"}), 500
+    return jsonify({"error": "An unknown error occurred"}), 500
 
 
-# --- 5. API Endpoint for Analysis (for the next step) ---
+# ==============================================================================
+# --- STEP 5: AI INTEGRATION SECTION ---
+# ==============================================================================
+
+def get_ai_analysis(contract_text: str) -> dict:
+    """
+    ############################################################################
+    ###   THIS IS THE FUNCTION YOU NEED TO EDIT.                             ###
+    ###   Replace the content of this function with your actual AI logic.    ###
+    ############################################################################
+    
+    This function takes the contract text as input and must return a dictionary
+    with the keys "opportunities_found" and "details".
+    """
+    
+    # --- YOUR AI LOGIC GOES HERE ---
+    
+    # Example: You might be calling the OpenAI API, a local model, or other service.
+    #
+    # import openai
+    # openai.api_key = 'YOUR_API_KEY'
+    #
+    # prompt = f"Analyze the following contract and identify key opportunities or risks. Return the answer as a numbered list:\n\n{contract_text}"
+    #
+    # response = openai.Completion.create(
+    #   engine="text-davinci-003",
+    #   prompt=prompt,
+    #   max_tokens=200
+    # )
+    #
+    # ai_response_text = response.choices[0].text
+    # details_list = [item.strip() for item in ai_response_text.split('\n') if item.strip()]
+    
+    
+    # For now, here is a simple placeholder that demonstrates the required output format.
+    # It counts the words in the contract to show it's processing the input.
+    print(f"--- Running Real AI Analysis on contract text (length: {len(contract_text)}) ---")
+    word_count = len(contract_text.split())
+    
+    # Your code MUST return a dictionary in this format for the frontend to work.
+    analysis_results = {
+        "opportunities_found": 2, # Replace with the actual number you find
+        "details": [
+            f"The contract contains approximately {word_count} words.", # Replace with details from your AI
+            "This is a second placeholder detail from the AI model."
+        ]
+    }
+    
+    return analysis_results
+    # --- END OF YOUR AI LOGIC ---
+
+
+# --- 5b. API Endpoint for Analysis ---
+# This endpoint receives the contract text from the frontend, calls your AI function,
+# and returns the results. You should not need to edit this.
 @app.route('/api/analyze', methods=['POST'])
 def analyze_contract():
     data = request.get_json()
-    contract_content = data.get('content')
+    if not data or 'content' not in 
+        return jsonify({"error": "Invalid request: No content provided"}), 400
 
-    if not contract_content:
-        return jsonify({"error": "No content provided for analysis"}), 400
+    contract_content = data['content']
 
-    # --- AI PROCESSING LOGIC WILL GO HERE ---
-    # This is a placeholder for your AI model's logic.
-    print(f"Analyzing content: {contract_content[:100]}...") # Print first 100 chars to log
-    
-    analysis_result = {
-        "opportunities_found": 2,
-        "details": [
-            "Placeholder: Ambiguous payment terms detected.",
-            "Placeholder: Unfavorable liability clause found."
-        ]
-    }
-    # --- End of placeholder ---
+    try:
+        # Call the function containing your AI logic
+        results = get_ai_analysis(contract_content)
+        return jsonify(results)
 
-    return jsonify(analysis_result)
+    except Exception as e:
+        # This will catch any errors that happen during your AI processing
+        print(f"[AI ANALYSIS ERROR]: {e}")
+        return jsonify({"error": "An error occurred during AI analysis."}), 500
 
-# --- Main execution block (for local testing) ---
+
+# --- Main execution block (for local testing and Render deployment) ---
 if __name__ == '__main__':
-    # The host='0.0.0.0' makes it accessible on your local network
-    # The port=10000 matches what Render expects.
+    # host='0.0.0.0' makes it accessible outside the container.
+    # port=10000 matches Render's default.
+    # debug=False is recommended for production, but True is fine for testing.
     app.run(host='0.0.0.0', port=10000, debug=True)
 
