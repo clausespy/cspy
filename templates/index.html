@@ -3,443 +3,226 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ClauseSpy - Dynamic UI Mockup</title>
+    <title>ClauseSpy - Analysis Dashboard</title>
+
+    <!-- Import the PDF.js library -->
+    <script src="//mozilla.github.io/pdf.js/build/pdf.mjs" type="module"></script>
+
+    <!-- Basic Styling to match the dashboard look -->
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
-
-        :root {
-            --primary-color: #6a5acd; /* SlateBlue */
-            --secondary-color: #00d4ff; /* A bright blue */
-            --background-color: #1c1c2e; /* Dark blue */
-            --card-background: rgba(255, 255, 255, 0.05);
-            --text-color: #ffffff;
-            --text-muted: #a9a9c4;
-            --risk-high: #ff4757;
-            --risk-medium: #ffc107;
-            --risk-low: #2ed573;
-        }
-
         body {
-            font-family: 'Poppins', sans-serif;
-            background-color: var(--background-color);
-            color: var(--text-color);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #1a1a1a;
+            color: #e0e0e0;
             margin: 0;
+            padding: 2rem;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            padding: 2rem;
-            box-sizing: border-box;
         }
-
-        .container {
+        .dashboard {
             width: 100%;
-            max-width: 1400px;
-            height: 90vh;
-            display: grid;
-            grid-template-columns: 280px 1fr;
-            background: var(--card-background);
-            border-radius: 24px;
-            box-shadow: 0 10px 50px rgba(0, 0, 0, 0.2);
-            overflow: hidden;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
-        }
-
-        /* --- Sidebar --- */
-        .sidebar {
-            background-color: rgba(0,0,0,0.1);
-            padding: 2.5rem 1.5rem;
-            display: flex;
-            flex-direction: column;
-            border-right: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .logo {
-            font-weight: 700;
-            font-size: 28px;
-            margin-bottom: 3rem;
-            text-align: center;
-            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        
-        .upload-area {
-            border: 2px dashed var(--text-muted);
-            border-radius: 16px;
-            padding: 2rem;
-            text-align: center;
-            cursor: pointer;
-            background-color: rgba(255, 255, 255, 0.05);
-            transition: all 0.3s ease;
-        }
-        
-        .upload-area:hover {
-            border-color: var(--primary-color);
-            transform: scale(1.03);
-            background-color: rgba(106, 90, 205, 0.1);
-        }
-
-        .upload-area svg { color: var(--primary-color); margin-bottom: 1rem; }
-        .upload-text { font-weight: 500; color: var(--text-color); }
-        .upload-subtext { font-size: 13px; color: var(--text-muted); margin-top: 0.25rem; }
-
-        /* Style for the new Scan button */
-        .scan-btn {
-            width: 100%;
-            padding: 1rem;
-            margin-top: 1rem;
-            border: none;
-            border-radius: 8px;
-            background: var(--primary-color);
-            color: var(--text-color);
-            font-weight: 600;
-            font-size: 16px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        .scan-btn:hover {
-            opacity: 0.9;
-            transform: scale(1.02);
-        }
-        .scan-btn:disabled {
-            background-color: #5a5a7d; /* Muted purple */
-            color: var(--text-muted);
-            cursor: not-allowed;
-            transform: none;
-        }
-
-
-        .chatbot {
-            margin-top: 2.5rem;
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .chatbot h3 {
-            font-size: 16px;
-            font-weight: 600;
-            color: var(--text-color);
-            margin-bottom: 1rem;
-        }
-
-        .chat-history {
-            flex-grow: 1;
-            background: rgba(0,0,0,0.2);
+            max-width: 900px;
+            background-color: #2b2b2b;
             border-radius: 12px;
-            padding: 1rem;
-            margin-bottom: 1rem;
-            font-size: 14px;
-            line-height: 1.6;
-            color: var(--text-muted);
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
-        
-        .chat-input {
-            width: 100%;
-            padding: 0.75rem 1rem;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 8px;
-            font-size: 14px;
-            box-sizing: border-box;
-            background-color: rgba(0,0,0,0.2);
-            color: var(--text-color);
-        }
-
-        /* --- Main Panel --- */
-        .main-panel {
-            padding: 3rem;
-            overflow-y: auto;
-        }
-
-        .main-panel h1 {
-            font-size: 36px;
-            font-weight: 700;
+        header h1 {
+            font-size: 2.5rem;
             margin: 0 0 0.5rem 0;
+            color: #ffffff;
         }
-
-        .main-panel .tagline {
-            font-size: 18px;
-            color: var(--text-muted);
-            margin-bottom: 3rem;
+        header p {
+            font-size: 1.2rem;
+            margin: 0 0 2rem 0;
+            color: #a0a0a0;
         }
-
-        /* --- Dashboard Cards --- */
-        .dashboard-grid {
+        .main-content {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 3rem;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
         }
-
-        .card {
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0));
-            border-radius: 20px;
+        .upload-section {
+            border: 2px dashed #444;
+            border-radius: 8px;
             padding: 1.5rem;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            transition: all 0.3s ease;
-        }
-        .card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 8px 30px rgba(0,0,0,0.2);
-            border-color: rgba(106, 90, 205, 0.5);
-        }
-        
-        .card .icon {
-            width: 48px;
-            height: 48px;
-            border-radius: 12px;
             display: flex;
-            align-items: center;
+            flex-direction: column;
             justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+        .upload-section label {
+            font-size: 1rem;
+            color: #a0a0a0;
             margin-bottom: 1rem;
-            font-size: 24px;
         }
-
-        .card .title {
-            font-size: 14px;
-            font-weight: 500;
-            color: var(--text-muted);
-            margin-bottom: 0.5rem;
-        }
-
-        .card .data {
-            font-size: 22px;
-            font-weight: 700;
-            color: var(--text-color);
-        }
-        
-        /* Card specifics */
-        .card-summary .icon { background: linear-gradient(45deg, var(--primary-color), #8a7aff); color: white;}
-        .card-risk .icon { background: linear-gradient(45deg, var(--risk-high), #ff7989); color: white; }
-        .card-opportunity .icon { background: linear-gradient(45deg, var(--risk-low), #7bed9f); color: white;}
-
-        /* Risk Analysis Section */
-        .analysis-section {
-            background: var(--card-background);
-            border-radius: 20px;
-            padding: 2rem;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        
-        .analysis-section h2 {
-            font-size: 22px;
-            font-weight: 600;
-            margin: 0 0 1.5rem 0;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            padding-bottom: 1rem;
-        }
-        
-        .risk-item {
-            display: flex;
-            align-items: flex-start;
+        #file-input {
             margin-bottom: 1.5rem;
         }
-        .risk-item:last-child { margin-bottom: 0; }
-
-        .risk-guage {
-            flex-shrink: 0;
-            margin-right: 1.5rem;
-            width: 50px;
+        #scan-contract-button {
+            background-color: #4a69bd;
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            font-size: 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.3s;
         }
-        .risk-guage .level {
-            height: 8px;
-            border-radius: 4px;
-            margin-top: 8px;
+        #scan-contract-button:hover {
+            background-color: #5c7ee0;
         }
-        .risk-guage .label { font-weight: 600; font-size: 14px; }
-        
-        .risk-high .label { color: var(--risk-high); }
-        .risk-high .level { background: var(--risk-high); }
-        .risk-medium .label { color: var(--risk-medium); }
-        .risk-medium .level { background: var(--risk-medium); }
-        .risk-low .label { color: var(--risk-low); }
-        .risk-low .level { background: var(--risk-low); }
-
-        .risk-content .risk-title { font-weight: 600; font-size: 16px; color: var(--text-color); }
-        .risk-content .risk-description { font-size: 14px; color: var(--text-muted); line-height: 1.6; }
-
+        #status-display {
+            margin-top: 1rem;
+            color: #a0a0a0;
+            min-height: 1.2em;
+        }
+        .results-section {
+            background-color: #333;
+            border-radius: 8px;
+            padding: 1.5rem;
+        }
+        .results-section h3 {
+            margin-top: 0;
+            color: #ffffff;
+        }
+        #results-container ul {
+            padding-left: 20px;
+        }
+        #results-container li {
+            margin-bottom: 0.5rem;
+            line-height: 1.4;
+        }
     </style>
 </head>
 <body>
-    <!-- This is the hidden file input. We trigger it with JavaScript. -->
-    <input type="file" id="contract-file-input" hidden>
 
-    <div class="container">
-        <aside class="sidebar">
-            <div class="logo">ClauseSpy</div>
-            
-            <div class="upload-area">
-                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M21.2 15c.7-1.2 1-2.5.7-3.9-.6-2.4-2.4-4.2-4.8-4.8-1.4-.3-2.7-.1-3.9.7L12 8 9.8 6c-1.2-.8-2.5-1-3.9-.7-2.4.6-4.2 2.4-4.8 4.8-.3 1.4-.1 2.7.7 3.9L8 16l4 4 4-4 .2-2.8"></path>
-                </svg>
-                <div class="upload-text">Upload Contract</div>
-                <div class="upload-subtext">Click or Drag & Drop PDF</div>
-            </div>
-
-            <!-- This is our new Scan button. It starts disabled. -->
-            <button id="scan-button" class="scan-btn" disabled>Scan Contract</button>
-
-            <div class="chatbot">
-                <h3>Ask AI Assistant</h3>
-                <div class="chat-history">
-                    <p><strong>Bot:</strong> I can clarify any part of this contract. Just ask!</p>
-                </div>
-                <input type="text" class="chat-input" placeholder="e.g., Explain the liability clause">
-            </div>
-        </aside>
-
-        <main class="main-panel">
+    <div class="dashboard">
+        <header>
             <h1>Analysis Dashboard</h1>
-            <p class="tagline">Your contract, decoded.</p>
+            <p>Your contract, decoded.</p>
+        </header>
 
-            <div class="dashboard-grid">
-                <div class="card card-summary">
-                    <div class="icon">📝</div>
-                    <div class="title">Plain Summary</div>
-                    <div class="data">Ready to Read</div>
-                </div>
-
-                <div class="card card-risk">
-                    <div class="icon">⚠️</div>
-                    <div class="title">Overall Risk</div>
-                    <div class="data">High</div>
-                </div>
-
-                <div class="card card-opportunity">
-                     <div class="icon">💡</div>
-                    <div class="title">Opportunities</div>
-                    <div class="data">2 Found</div>
-                </div>
+        <main class="main-content">
+            <div class="upload-section">
+                <label for="file-input">Click to upload or drag & drop PDF</label>
+                <input type="file" id="file-input" accept=".pdf">
+                <button id="scan-contract-button">Scan Contract</button>
+                <p id="status-display">Ready to scan.</p>
             </div>
 
-            <section class="analysis-section">
-                <h2>Risk Breakdown</h2>
-                <div class="risk-list">
-                    <!-- Dynamic content will go here -->
-                    <div class="risk-item">
-                        <div class="risk-guage risk-high">
-                            <div class="label">High</div>
-                            <div class="level"></div>
-                        </div>
-                        <div class="risk-content">
-                            <p class="risk-title">Unlimited Liability</p>
-                            <p class="risk-description">The clause on page 4 lacks a liability cap, exposing you to significant financial risk. This should be negotiated immediately.</p>
-                        </div>
-                    </div>
-                    <div class="risk-item">
-                        <div class="risk-guage risk-medium">
-                            <div class="label">Medium</div>
-                             <div class="level"></div>
-                        </div>
-                        <div class="risk-content">
-                            <p class="risk-title">Aggressive Auto-Renewal</p>
-                            <p class="risk-description">The contract renews automatically unless you provide a 90-day notice, which is longer than the industry standard of 30 days.</p>
-                        </div>
-                    </div>
-                     <div class="risk-item">
-                        <div class="risk-guage risk-low">
-                           <div class="label">Low</div>
-                            <div class="level"></div>
-                        </div>
-                        <div class="risk-content">
-                            <p class="risk-title">Standard Force Majeure</p>
-                            <p class="risk-description">The "Act of God" clause is standard and doesn't contain any unusual terms or hidden risks.</p>
-                        </div>
-                    </div>
+            <div class="results-section">
+                <div id="results-container">
+                    <h3>Ready to Read</h3>
+                    <p>Analysis results will appear here after scanning a contract.</p>
                 </div>
-            </section>
+            </div>
         </main>
     </div>
 
-    <!-- ===== JAVASCRIPT FOR FUNCTIONALITY ===== -->
-    <script>
-        // Get all the elements we need to work with
-        const uploadArea = document.querySelector('.upload-area');
-        const fileInput = document.getElementById('contract-file-input');
-        const scanButton = document.getElementById('scan-button');
-        const uploadText = document.querySelector('.upload-text');
-        
-        let selectedFile = null; // Variable to store the chosen file
+    <!-- The complete JavaScript logic from the previous step -->
+    <script type="module">
+        // This is ES6 module syntax, which works well with pdf.js
+        import * as pdfjsLib from 'https://mozilla.github.io/pdf.js/build/pdf.mjs';
 
-        // --- Step 1: Handle File Selection ---
+        // Set the workerSrc for pdf.js. This is a required configuration step.
+        pdfjsLib.GlobalWorkerOptions.workerSrc = `//mozilla.github.io/pdf.js/build/pdf.worker.mjs`;
 
-        // When the styled upload area is clicked, it clicks the hidden file input
-        uploadArea.addEventListener('click', () => {
-            fileInput.click();
-        });
+        // --- DOM Element References ---
+        const fileInput = document.getElementById('file-input');
+        const scanButton = document.getElementById('scan-contract-button');
+        const statusDisplay = document.getElementById('status-display');
+        const resultsContainer = document.getElementById('results-container');
 
-        // Also handle dropping a file onto the upload area
-        uploadArea.addEventListener('dragover', (event) => {
-            event.preventDefault(); // Prevents the browser from opening the file
-            uploadArea.style.borderColor = 'var(--primary-color)';
-        });
-        uploadArea.addEventListener('dragleave', () => {
-            uploadArea.style.borderColor = 'var(--text-muted)';
-        });
-        uploadArea.addEventListener('drop', (event) => {
-            event.preventDefault();
-            uploadArea.style.borderColor = 'var(--text-muted)';
+        // --- Event Listener for the Scan Button ---
+        scanButton.addEventListener('click', async () => {
+            const files = fileInput.files;
+
+            if (!files || files.length === 0) {
+                statusDisplay.textContent = "Please select a PDF file first.";
+                return;
+            }
+
+            const file = files[0];
+
+            if (file.type !== "application/pdf") {
+                statusDisplay.textContent = "Error: Please upload a valid PDF file.";
+                return;
+            }
             
-            // Get the dropped file and trigger the 'change' event
-            const files = event.dataTransfer.files;
-            if (files.length > 0) {
-                fileInput.files = files;
-                const changeEvent = new Event('change', { 'bubbles': true });
-                fileInput.dispatchEvent(changeEvent);
+            statusDisplay.textContent = "Scanning contract...";
+            resultsContainer.innerHTML = '<h3>Scanning...</h3>'; // Clear previous results and show scanning state
+
+            try {
+                // Step 1: Read the PDF content on the client-side
+                const contractText = await readPdfContent(file);
+                
+                statusDisplay.textContent = "Analyzing with AI...";
+
+                // Step 2: Send the extracted text to the backend API
+                const analysisResults = await analyzeContract(contractText);
+
+                // Step 3: Display the results on the dashboard
+                displayAnalysis(analysisResults);
+                
+                statusDisplay.textContent = "Analysis complete!";
+
+            } catch (error) {
+                console.error("An error occurred during the process:", error);
+                statusDisplay.textContent = `Error: ${error.message}`;
+                resultsContainer.innerHTML = `<p style="color: #ff6b6b;">Analysis Failed. Please try again.</p>`;
             }
         });
 
-        // When a file is chosen (either by clicking or dropping)
-        fileInput.addEventListener('change', (event) => {
-            selectedFile = event.target.files[0];
-            if (selectedFile) {
-                // Update the UI
-                uploadText.textContent = selectedFile.name; // Show the filename
-                scanButton.disabled = false; // Enable the "Scan" button
-                alert('File "' + selectedFile.name + '" is ready. Click "Scan Contract" to proceed.');
-            } else {
-                // Reset if no file is chosen
-                uploadText.textContent = 'Upload Contract';
-                scanButton.disabled = true;
-                selectedFile = null;
+        // --- Helper Function to Read PDF Content ---
+        async function readPdfContent(file) {
+            const arrayBuffer = await file.arrayBuffer();
+            const pdf = await pdfjsLib.getDocument({  arrayBuffer }).promise;
+            let allText = '';
+
+            for (let i = 1; i <= pdf.numPages; i++) {
+                const page = await pdf.getPage(i);
+                const textContent = await page.getTextContent();
+                allText += textContent.items.map(item => item.str).join(' ') + '\n';
             }
-        });
-
-
-        // --- Step 2: Handle the Scan Button Click ---
-        
-        scanButton.addEventListener('click', () => {
-            if (selectedFile) {
-                const reader = new FileReader();
-
-                // This function runs when the file has been successfully read
-                reader.onload = (event) => {
-                    const fileContent = event.target.result;
-                    
-                    console.log("--- Contract Content ---");
-                    console.log(fileContent);
-                    
-                    alert("Contract has been 'scanned'! The content is now available in the browser's console (press F12 and click 'Console'). This is where you would send the content to the AI.");
-
-                    // Here, you would send 'fileContent' to your AI analysis backend
-                };
-
-                // This function runs if there's an error reading the file
-                reader.onerror = () => {
-                    alert('Error reading the file. Please try again.');
-                    console.error('File could not be read.');
-                };
-
-                // Start reading the file as plain text
-                reader.readAsText(selectedFile);
-            } else {
-                alert('Please select a contract file first.');
+            
+            if (!allText.trim()) {
+                throw new Error("Could not extract any text from the PDF.");
             }
-        });
+            
+            return allText;
+        }
 
+        // --- API Call Function to Analyze Contract ---
+        async function analyzeContract(contractText) {
+            const response = await fetch('/api/analyze', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ content: contractText }),
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({ error: 'Server returned a non-JSON error' }));
+                throw new Error(`Analysis failed: ${errorData.error || response.statusText}`);
+            }
+
+            return response.json();
+        }
+
+        // --- Function to Display Analysis Results ---
+        function displayAnalysis(results) {
+            resultsContainer.innerHTML = `
+                <h3>Analysis Results</h3>
+                <p><strong>Opportunities Found:</strong> ${results.opportunities_found}</p>
+                <ul>
+                    ${results.details.map(detail => `<li>${detail}</li>`).join('')}
+                </ul>
+            `;
+        }
     </script>
+
 </body>
 </html>
