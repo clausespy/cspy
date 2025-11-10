@@ -1,2 +1,4 @@
-Flask
-gunicorn
+flask
+python-dotenv
+openai
+gunicorn 
