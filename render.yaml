@@ -1,13 +1,10 @@
 '''
+# This is the full and correct content for your render.yaml file.
 services:
-  # A name for your service
-  - name: clausespy
-    # The type of service to create
-    type: web
-    # The runtime environment for your app
+  - type: web
+    name: clausespy
     env: python
-    # The command to build your app
-    buildCommand: "pip install -r Requirements.txt"
-    # The command to start your app
-    startCommand: "gunicorn app:app"
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app
+    plan: free
 '''
