@@ -102,7 +102,7 @@
 
     <div class="dashboard">
         <header>
-            <h1>Analysis Dashboard</h1>
+            <h1>Analysis Dashboard v2</h1>
             <p>Your contract, decoded.</p>
         </header>
 
@@ -125,6 +125,8 @@
 
     <!-- The complete JavaScript logic from the previous step -->
     <script type="module">
+        console.log("v2 script loaded."); // Check if the new script is even loading
+
         // This is ES6 module syntax, which works well with pdf.js
         import * as pdfjsLib from 'https://mozilla.github.io/pdf.js/build/pdf.mjs';
 
@@ -139,9 +141,12 @@
 
         // --- Event Listener for the Scan Button ---
         scanButton.addEventListener('click', async () => {
+            console.log("v2 script: Scan button clicked."); // Log that the new script's event listener is running
+
             const files = fileInput.files;
 
             if (!files || files.length === 0) {
+                console.log("v2 script: No file selected.");
                 statusDisplay.textContent = "Please select a PDF file first.";
                 return;
             }
@@ -179,8 +184,14 @@
 
         // --- Helper Function to Read PDF Content ---
         async function readPdfContent(file) {
+            console.log("v2 script: Starting readPdfContent function.");
             const arrayBuffer = await file.arrayBuffer();
-            const pdf = await pdfjsLib.getDocument({  arrayBuffer }).promise;
+            console.log("v2 script: File read into arrayBuffer. Calling pdfjsLib.getDocument...");
+            
+            // This is the critical line. The error you see comes from an old version of this call.
+            const pdf = await pdfjsLib.getDocument({ arrayBuffer }).promise;
+            
+            console.log("v2 script: pdf.js getDocument was successful.");
             let allText = '';
 
             for (let i = 1; i <= pdf.numPages; i++) {
