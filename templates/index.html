@@ -1,239 +1,87 @@
-'''<!DOCTYPE html>
+'''
+<!-- Filename: templates/index.html -->
+
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ClauseSpy - Analysis Dashboard</title>
-
-    <!-- Import the PDF.js library -->
-    <script src="//mozilla.github.io/pdf.js/build/pdf.mjs" type="module"></script>
-
-    <!-- Basic Styling to match the dashboard look -->
+    <title>ClauseSpy - AI-Powered Contract Analysis</title>
     <style>
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: #1a1a1a;
-            color: #e0e0e0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
             margin: 0;
-            padding: 2rem;
+            padding: 0;
+            background-color: #f8f9fa;
+            color: #212529;
+            line-height: 1.6;
+        }
+        .navbar {
+            background-color: #ffffff;
+            border-bottom: 1px solid #e7e7e7;
+            padding: 1rem 2rem;
             display: flex;
-            justify-content: center;
+            justify-content: space-between;
             align-items: center;
-            min-height: 100vh;
         }
-        .dashboard {
-            width: 100%;
-            max-width: 900px;
-            background-color: #2b2b2b;
-            border-radius: 12px;
-            padding: 2rem;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-        }
-        header h1 {
-            font-size: 2.5rem;
-            margin: 0 0 0.5rem 0;
-            color: #ffffff;
-        }
-        header p {
-            font-size: 1.2rem;
-            margin: 0 0 2rem 0;
-            color: #a0a0a0;
+        .navbar-brand {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #007bff;
+            text-decoration: none;
         }
         .main-content {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 2rem;
-        }
-        .upload-section {
-            border: 2px dashed #444;
-            border-radius: 8px;
-            padding: 1.5rem;
             display: flex;
-            flex-direction: column;
             justify-content: center;
             align-items: center;
+            flex-direction: column;
             text-align: center;
+            height: calc(100vh - 70px); /* Full height minus navbar */
+            padding: 2rem;
         }
-        .upload-section label {
-            font-size: 1rem;
-            color: #a0a0a0;
-            margin-bottom: 1rem;
-        }
-        #file-input {
+        h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
             margin-bottom: 1.5rem;
         }
-        #scan-contract-button {
-            background-color: #4a69bd;
-            color: white;
-            border: none;
-            padding: 0.8rem 1.5rem;
-            font-size: 1rem;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: background-color 0.3s;
+        p.lead {
+            font-size: 1.3rem;
+            color: #6c757d;
+            max-width: 600px;
+            margin-bottom: 2rem;
         }
-        #scan-contract-button:hover {
-            background-color: #5c7ee0;
-        }
-        #status-display {
-            margin-top: 1rem;
-            color: #a0a0a0;
-            min-height: 1.2em;
-        }
-        .results-section {
-            background-color: #333;
-            border-radius: 8px;
-            padding: 1.5rem;
-        }
-        .results-section h3 {
-            margin-top: 0;
+        .cta-button {
+            background-color: #007bff;
             color: #ffffff;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 5px;
+            text-decoration: none;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
         }
-        #results-container ul {
-            padding-left: 20px;
-        }
-        #results-container li {
-            margin-bottom: 0.5rem;
-            line-height: 1.4;
+        .cta-button:hover {
+            background-color: #0056b3;
         }
     </style>
 </head>
 <body>
 
-    <div class="dashboard">
-        <header>
-            <h1>Analysis Dashboard v2</h1>
-            <p>Your contract, decoded.</p>
-        </header>
+    <nav class="navbar">
+        <a href="/" class="navbar-brand">ClauseSpy</a>
+    </nav>
 
-        <main class="main-content">
-            <div class="upload-section">
-                <label for="file-input">Click to upload or drag & drop PDF</label>
-                <input type="file" id="file-input" accept=".pdf">
-                <button id="scan-contract-button">Scan Contract</button>
-                <p id="status-display">Ready to scan.</p>
-            </div>
-
-            <div class="results-section">
-                <div id="results-container">
-                    <h3>Ready to Read</h3>
-                    <p>Analysis results will appear here after scanning a contract.</p>
-                </div>
-            </div>
-        </main>
-    </div>
-
-    <!-- The complete JavaScript logic from the previous step -->
-    <script type="module">
-        console.log("v2 script loaded."); // Check if the new script is even loading
-
-        // This is ES6 module syntax, which works well with pdf.js
-        import * as pdfjsLib from 'https://mozilla.github.io/pdf.js/build/pdf.mjs';
-
-        // Set the workerSrc for pdf.js. This is a required configuration step.
-        pdfjsLib.GlobalWorkerOptions.workerSrc = `//mozilla.github.io/pdf.js/build/pdf.worker.mjs`;
-
-        // --- DOM Element References ---
-        const fileInput = document.getElementById('file-input');
-        const scanButton = document.getElementById('scan-contract-button');
-        const statusDisplay = document.getElementById('status-display');
-        const resultsContainer = document.getElementById('results-container');
-
-        // --- Event Listener for the Scan Button ---
-        scanButton.addEventListener('click', async () => {
-            console.log("v2 script: Scan button clicked."); // Log that the new script's event listener is running
-
-            const files = fileInput.files;
-
-            if (!files || files.length === 0) {
-                console.log("v2 script: No file selected.");
-                statusDisplay.textContent = "Please select a PDF file first.";
-                return;
-            }
-
-            const file = files[0];
-
-            if (file.type !== "application/pdf") {
-                statusDisplay.textContent = "Error: Please upload a valid PDF file.";
-                return;
-            }
-            
-            statusDisplay.textContent = "Scanning contract...";
-            resultsContainer.innerHTML = '<h3>Scanning...</h3>'; // Clear previous results and show scanning state
-
-            try {
-                // Step 1: Read the PDF content on the client-side
-                const contractText = await readPdfContent(file);
-                
-                statusDisplay.textContent = "Analyzing with AI...";
-
-                // Step 2: Send the extracted text to the backend API
-                const analysisResults = await analyzeContract(contractText);
-
-                // Step 3: Display the results on the dashboard
-                displayAnalysis(analysisResults);
-                
-                statusDisplay.textContent = "Analysis complete!";
-
-            } catch (error) {
-                console.error("An error occurred during the process:", error);
-                statusDisplay.textContent = `Error: ${error.message}`;
-                resultsContainer.innerHTML = `<p style="color: #ff6b6b;">Analysis Failed. Please try again.</p>`;
-            }
-        });
-
-        // --- Helper Function to Read PDF Content ---
-        async function readPdfContent(file) {
-            console.log("v2 script: Starting readPdfContent function.");
-            const arrayBuffer = await file.arrayBuffer();
-            console.log("v2 script: File read into arrayBuffer. Calling pdfjsLib.getDocument...");
-            
-            // This is the critical line. The error you see comes from an old version of this call.
-            const pdf = await pdfjsLib.getDocument({ arrayBuffer }).promise;
-            
-            console.log("v2 script: pdf.js getDocument was successful.");
-            let allText = '';
-
-            for (let i = 1; i <= pdf.numPages; i++) {
-                const page = await pdf.getPage(i);
-                const textContent = await page.getTextContent();
-                allText += textContent.items.map(item => item.str).join(' ') + '\n';
-            }
-            
-            if (!allText.trim()) {
-                throw new Error("Could not extract any text from the PDF.");
-            }
-            
-            return allText;
-        }
-
-        // --- API Call Function to Analyze Contract ---
-        async function analyzeContract(contractText) {
-            const response = await fetch('/api/analyze', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ content: contractText }),
-            });
-
-            if (!response.ok) {
-                const errorData = await response.json().catch(() => ({ error: 'Server returned a non-JSON error' }));
-                throw new Error(`Analysis failed: ${errorData.error || response.statusText}`);
-            }
-
-            return response.json();
-        }
-
-        // --- Function to Display Analysis Results ---
-        function displayAnalysis(results) {
-            resultsContainer.innerHTML = `
-                <h3>Analysis Results</h3>
-                <p><strong>Opportunities Found:</strong> ${results.opportunities_found}</p>
-                <ul>
-                    ${results.details.map(detail => `<li>${detail}</li>`).join('')}
-                </ul>
-            `;
-        }
-    </script>
+    <main class="main-content">
+        <h1>Welcome to ClauseSpy</h1>
+        <p class="lead">
+            The future of contract analysis is here. Let AI do the heavy lifting, so you can focus on what matters. Your application is now successfully deployed and ready to be built out.
+        </p>
+        <a href="#" class="cta-button">Get Started</a>
+    </main>
 
 </body>
-</html>'''
+</html>
+'''
