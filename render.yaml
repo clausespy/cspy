@@ -7,7 +7,7 @@ services:
     # The runtime environment for your app
     env: python
     # The command to build your app
-    buildCommand: "pip install -r requirements.txt"
+    buildCommand: "pip install -r Requirements.txt"
     # The command to start your app
     startCommand: "gunicorn app:app"
 '''
