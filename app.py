@@ -7,8 +7,9 @@ from flask import Flask, render_template
 
 # 1. Initialize the Flask Application
 # This 'app' variable is the central object that Gunicorn will use to run the application.
-app = Flask(__name__)
 
+app = Flask(__name__)
+# Forcing a fresh deployment
 
 # 2. Define the Routes
 # A route maps a URL to a Python function. When a user visits the URL,
